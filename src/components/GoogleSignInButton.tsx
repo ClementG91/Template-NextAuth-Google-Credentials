@@ -8,8 +8,7 @@ interface GoogleSignInButtonProps {
 const GoogleSignInButton: FC<GoogleSignInButtonProps> = ({ children }) => {
   const loginWithGoogle = () =>
     signIn('google', {
-      callbackUrl:
-        'https://template-next-auth-google-credentials.vercel.app/admin',
+      callbackUrl: `${window.location.origin}/admin`,
     });
 
   return (
