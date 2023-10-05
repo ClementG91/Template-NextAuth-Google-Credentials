@@ -52,6 +52,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  cryptoLoginNonce CryptoLoginNonce?
+  publicAddress    String?           @unique // Added to enable crypto authentication
 
   @@map("users")
 }
@@ -64,4 +66,11 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model CryptoLoginNonce {
+  userId  String    @id @default(cuid()) @map("_id")
+  nonce   String
+  expires DateTime
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
