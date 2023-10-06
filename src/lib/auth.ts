@@ -58,6 +58,48 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+
+    // crypto wallet
+    CredentialsProvider({
+      id: 'crypto',
+      name: 'Crypto Wallet Auth',
+      credentials: {
+        publicAddress: { label: 'Public Address', type: 'text' },
+        signedNonce: { label: 'Signed Nonce', type: 'text' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.publicAddress || !credentials?.signedNonce) {
+          return null;
+        }
+        const existingUserByPublicAddress = await db.user.findUnique({
+          where: {
+            publicAddress: credentials.publicAddress,
+            name: credentials.publicAddress,
+          },
+        });
+        if (!existingUserByPublicAddress) {
+          // Aucun utilisateur trouvé avec cette publicAddress, alors créez un nouvel utilisateur
+          const newUser = await db.user.create({
+            data: {
+              publicAddress: credentials.publicAddress,
+              name: credentials.publicAddress,
+            },
+          });
+          return {
+            id: newUser.id,
+            name: newUser.publicAddress,
+            email: newUser.email,
+            publicAddress: newUser.publicAddress,
+          };
+        }
+        return {
+          id: existingUserByPublicAddress.id,
+          name: existingUserByPublicAddress.name,
+          email: existingUserByPublicAddress.email,
+          publicAddress: existingUserByPublicAddress.publicAddress,
+        };
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {

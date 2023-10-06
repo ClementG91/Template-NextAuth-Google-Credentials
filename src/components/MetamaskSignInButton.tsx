@@ -4,88 +4,69 @@ import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { ethers } from 'ethers';
 
-interface MetamaskSignInButtonProps {
-  children: ReactNode;
-}
-
+// Fix typescript errors for window.ethereum
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
 
-const MetamaskSignInButton: FC<MetamaskSignInButtonProps> = ({ children }) => {
-  const loginWithMetamask = async function () {
-    try {
-      console.log('Starting loginWithMetamask');
+interface MetamaskSignInButtonProps {
+  children: ReactNode;
+}
 
-      if (!window.ethereum) {
-        console.error('MetaMask is not installed.');
-        window.alert('Please install MetaMask first.');
-        return;
-      }
-
-      console.log('MetaMask is installed');
-
-      // Get the wallet provider, the signer and address
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const publicAddress = await signer.getAddress();
-
-      console.log('Public Address:', publicAddress);
-
-      // Send the public address to generate a nonce associates with our account
-      const response = await fetch('/api/auth/crypto', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          publicAddress,
-        }),
-      });
-
-      console.log('Nonce Response:', response);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch nonce: ${response.statusText}`);
-      }
-
-      const responseData = await response.json();
-
-      console.log('Nonce Response Data:', responseData);
-
-      // Sign the received nonce
-      const signedNonce = await signer.signMessage(responseData.nonce);
-
-      console.log('Signed nonce:', signedNonce);
-
-      // Use NextAuth to sign in with our address and the nonce
-      await signIn('crypto', {
-        publicAddress,
-        signedNonce,
-        callbackUrl: `${window.location.origin}/admin`,
-      });
-
-      console.log('Successfully signed in');
-    } catch (error) {
-      console.error('Error with signing:', error);
-      window.alert('Error with signing, please try again.');
+// This function requests a nonce then signs it, proving that
+//  the user owns the public address they are using
+async function loginWithMetamask() {
+  try {
+    if (!window.ethereum) {
+      window.alert('Please install MetaMask first.');
+      return;
     }
-  };
 
+    // Get the wallet provider, the signer and address
+    //  see: https://docs.ethers.org/v6/getting-started/#starting-signing
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const publicAddress = await signer.getAddress();
+    console.log('publicAddress:', publicAddress);
+
+    // Send the public address to generate a nonce associates with our account
+    const response = await fetch('/api/auth/crypto', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        publicAddress,
+      }),
+    });
+    const responseData = await response.json();
+    console.log('responseData:', responseData);
+    // Sign the received nonce
+    const signedNonce = await signer.signMessage(responseData.nonce);
+    console.log('signedNonce:', signedNonce);
+
+    // Use NextAuth to sign in with our address and the nonce
+    await signIn('crypto', {
+      publicAddress,
+      signedNonce,
+      callbackUrl: '/admin',
+    });
+    console.log('Signed in with address:', publicAddress);
+  } catch {
+    window.alert('Error with signing, please try again.');
+  }
+}
+
+const MetamaskSignInButton: FC<MetamaskSignInButtonProps> = ({ children }) => {
   return (
-    <Button onClick={loginWithMetamask} className="w-full py-2">
-      <Image
-        src="/metamask.svg"
-        width={24}
-        height={24}
-        alt="Metamask"
-        className="mx-1"
-      />
-      {children}
-    </Button>
+    <main>
+      <Button onClick={loginWithMetamask} className="w-full py-2">
+        <Image src="/metamask.svg" width={24} height={24} alt="Metamask" />
+        {children}
+      </Button>
+    </main>
   );
 };
-
 export default MetamaskSignInButton;
