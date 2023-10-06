@@ -16,6 +16,7 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import GoogleSignInButton from '../GoogleSignInButton';
 import GithubSignInButton from '../GithubSignInButton';
+import MetamaskSignInButton from '../MetamaskSignInButton';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../ui/use-toast';
 
@@ -150,6 +151,7 @@ const SignUpForm = () => {
       <div className="flex flex-col gap-2">
         <GoogleSignInButton>Sign up with Google</GoogleSignInButton>
         <GithubSignInButton>Sign up with Github</GithubSignInButton>
+        <MetamaskSignInButton>Sign up with Metamask</MetamaskSignInButton>
       </div>
       <p className="text-center text-sm text-gray-600 mt-2">
         If you already have an account, please&nbsp;
