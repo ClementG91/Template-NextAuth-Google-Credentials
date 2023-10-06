@@ -83,6 +83,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               publicAddress: credentials.publicAddress,
               name: credentials.publicAddress,
+              email: credentials.publicAddress,
             },
           });
           return {
