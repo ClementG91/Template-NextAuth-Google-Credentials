@@ -29,7 +29,6 @@ async function loginWithMetamask() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const publicAddress = await signer.getAddress();
-    console.log('publicAddress:', publicAddress);
 
     // Send the public address to generate a nonce associates with our account
     const response = await fetch('/api/auth/crypto', {
@@ -42,18 +41,14 @@ async function loginWithMetamask() {
       }),
     });
     const responseData = await response.json();
-    console.log('responseData:', responseData);
     // Sign the received nonce
     const signedNonce = await signer.signMessage(responseData.nonce);
-    console.log('signedNonce:', signedNonce);
-
     // Use NextAuth to sign in with our address and the nonce
     await signIn('crypto', {
       publicAddress,
       signedNonce,
       callbackUrl: '/admin',
     });
-    console.log('Signed in with address:', publicAddress);
   } catch {
     window.alert('Error with signing, please try again.');
   }

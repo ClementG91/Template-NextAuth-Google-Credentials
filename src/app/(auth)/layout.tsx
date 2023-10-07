@@ -13,7 +13,7 @@ const AuthLayout: FC<AuthLayoutProps> = async ({ children }) => {
   if (session?.user) {
     return (
       <Link href="/admin">
-        <h2 className="text-green-500 text-2xl text-bold text-center">
+        <h2 className="text-2xl text-bold text-center">
           You are already logged in !<br />
           Welcome back:
           <br />
@@ -22,7 +22,11 @@ const AuthLayout: FC<AuthLayoutProps> = async ({ children }) => {
       </Link>
     );
   }
-  return <div className="bg-slate-200 p-10 rounded-md">{children}</div>;
+  return (
+    <div className="bg-background border px-10 py-5 rounded-md shadow">
+      {children}
+    </div>
+  );
 };
 
 export default AuthLayout;

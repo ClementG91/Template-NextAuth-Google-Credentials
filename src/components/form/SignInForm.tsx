@@ -105,7 +105,7 @@ const SignInForm = () => {
         <GithubSignInButton>Sign up with Github</GithubSignInButton>
         <MetamaskSignInButton>Sign up with Metamask</MetamaskSignInButton>
       </div>
-      <p className="text-center text-sm text-gray-600 mt-2">
+      <p className="text-center text-sm mt-2">
         If you don&apos;t have an account, please&nbsp;
         <Link className="text-blue-500 hover:underline" href="/sign-up">
           Sign up
